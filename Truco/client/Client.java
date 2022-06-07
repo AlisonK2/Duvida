@@ -3,8 +3,9 @@ package client;
 // Importing libraries
 import util.Card;
 import util.Player;
-import server.Server;
+import util.Computer;
 import java.net.Socket;
+import util.Comunicacao;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -19,17 +20,17 @@ public class Client {
     static Player player = new Player();
     static String msg_setting_difficulty;
     static Scanner sc = new Scanner(System.in);
-    static Server server = new Server();
     
     // ------------------------ Main ------------------------
     public static void main(String[] args) {
         // Instantiating variables
-        final int PORT = 1234;
         Socket socket = null;
         Scanner input = null;
+        final int PORT = 1234;
         PrintStream output = null;
         final String IP = "127.0.0.1";
-        
+        Comunicacao comunicacao = new Comunicacao(socket);
+
         // Solicitar conexão
         try {
             socket = new Socket(IP, PORT);
@@ -46,8 +47,8 @@ public class Client {
             Listen listen = new Listen(input);
             listen.start();
             
-            setting_match();
-            start_match();
+            setting_match(comunicacao);
+            start_match(comunicacao);
                       
         } catch (Exception e) {
             System.out.println(" >>> Erro na comunicação");
@@ -66,12 +67,13 @@ public class Client {
     }
 
     // ------------------------ Methods ------------------------
-    public static void setting_match() {
+    public static void setting_match(Comunicacao comunicacao) {
         System.out.println("\n >>> Digite o seu nome:");
         System.out.print(" --> ");
         msg_setting_match = sc.nextLine();
 
         player.setName(msg_setting_match);
+        comunicacao.enviar(14, player); // Envia a variável "player" para ser armazenada no Match
 
         try {
             clear_console();
@@ -99,8 +101,8 @@ public class Client {
 
             switch (msg_setting_match) {
                 case "1":
-                    server.setGame_mode(0); // Game mode igual a 0, jogador Vs Computador
-                    setting_pack();
+                    comunicacao.enviar(1, 0); // Requisita método "setGame_mode()"
+                    setting_pack(comunicacao);
                     break;
 
                 case "2":
@@ -118,7 +120,7 @@ public class Client {
         } while (!msg_setting_match.equals("3"));
     }
 
-    public static void setting_pack() {
+    public static void setting_pack(Comunicacao comunicacao) {
         do {
             System.out.println("\n Tipos de baralhos: \n"
                              + " 1 - Limpo (3, 2, A, K, J, Q)\n"
@@ -138,15 +140,15 @@ public class Client {
     
             switch (msg_setting_pack) {
                 case "1":
-                    server.setMatch_clean_pack();
-                    server.setRound_pack();
-                    setting_difficulty();
+                    comunicacao.enviar(2); // Requisita método "setMatch_clean_pack()"
+                    comunicacao.enviar(4); // Requisita método "setMatch_clean_pack()"
+                    setting_difficulty(comunicacao);
                     break;
             
                     case "2":
-                    server.setMatch_dirty_pack();
-                    server.setRound_pack();
-                    setting_difficulty();
+                    comunicacao.enviar(3); // Requisita método "setMatch_dirty_pack()"
+                    comunicacao.enviar(4); // Requisita método "setMatch_clean_pack()"
+                    setting_difficulty(comunicacao);
                     break;
 
                 case "3":
@@ -159,7 +161,7 @@ public class Client {
         } while (!msg_setting_pack.equals("3"));
     }
 
-    public static void setting_difficulty() {
+    public static void setting_difficulty(Comunicacao comunicacao) {
         do {
             System.out.println("\n Dificuldades: \n"
                              + " 1 - Fácil\n"
@@ -181,28 +183,28 @@ public class Client {
     
             switch (msg_setting_difficulty) {
                 case "1":
-                    server.setDifficulty(0.40);
+                    comunicacao.enviar(5, 0.40); // Requisita método "setDifficulty()"
                     msg_setting_difficulty = "5";
                     msg_setting_pack = "3";
                     msg_setting_match = "3";
                     break;
             
                 case "2":
-                    server.setDifficulty(0.55);
+                    comunicacao.enviar(5, 0.55); // Requisita método "setDifficulty()"
                     msg_setting_difficulty = "5";
                     msg_setting_pack = "3";
                     msg_setting_match = "3";
                     break;
 
                 case "3":
-                    server.setDifficulty(0.75);
+                    comunicacao.enviar(5, 0.75); // Requisita método "setDifficulty()"
                     msg_setting_difficulty = "5";
                     msg_setting_pack = "3";
                     msg_setting_match = "3";
                     break;
 
                 case "4":
-                    server.setDifficulty(0.99);
+                    comunicacao.enviar(5, 0.99); // Requisita método "setDifficulty()"
                     msg_setting_difficulty = "5";
                     msg_setting_pack = "3";
                     msg_setting_match = "3";
@@ -218,10 +220,11 @@ public class Client {
         } while (!msg_setting_difficulty.equals("5"));
     }
 
-    private static void start_match() {
+    private static void start_match(Comunicacao comunicacao) {
+        Computer pc = new Computer();
         do { // Partida até 12
             int j = 0;
-            int msg = 0;
+            int msg = 1;
             Card mesa = null;
             Card manilha = null;
             Card used_card = new Card();
@@ -231,13 +234,20 @@ public class Client {
             
     
             do { // Rodada, melhor de 3
-                server.embaralhar();
-                server.dar_cartas(player_hand, computer_hand);  
+                comunicacao.enviar(10); // Requisita método "embaralhar()"
+                comunicacao.enviar(11, player_hand, computer_hand); // Requisita método "dar_cartas()"
 
-                mesa = server.getRound_pack().get(6);
-                manilha = server.setting_manilha(mesa);                
-                player.setHand(player_hand);
-                server.setPc_hand(computer_hand);
+                comunicacao.enviar(15); // Requisita método "getPlayer().getHand()"
+                player_hand = (ArrayList<Card>) comunicacao.receber();
+
+                comunicacao.enviar(16); // Requisita método "getPc().getHand()"
+                computer_hand = (ArrayList<Card>) comunicacao.receber();
+                
+                comunicacao.enviar(8); // Requisita método "getRound_pack()"
+                mesa = (Card) comunicacao.receber(); // Recebe variável "Round_pack"
+
+                comunicacao.enviar(7, mesa); // Requisita método "setting_manilha()"
+                manilha = (Card) comunicacao.receber(); // Recebe variável "manilha" 
 
                 System.out.println("\n >>> " + player.getName() + " vs Computador"
                                  + "\n >>> Virou um " + mesa.getSymbol() + " na mesa.");
@@ -280,7 +290,7 @@ public class Client {
                     case 3:
                         used_cards.add(used_card);
                         player.setUsed_card(used_card);
-                        server.pc_play(player.getUsed_card());
+                        comunicacao.enviar(12, player.getUsed_card()); // Requisita método "pc_play()"
 
                         try {
                             clear_console();
@@ -289,23 +299,27 @@ public class Client {
                             System.out.println(e.getMessage());
                         } 
 
-                        System.out.println("\n\n >>> " + player.getName() + " jogou " + used_card.getSymbol() + " " + used_card.getSuit().getName());
-                        System.out.println(" >>> Computador jogou " + server.getPc().getUsed_card().getSymbol() + " " + server.getPc().getUsed_card().getSuit().getName());
+                        comunicacao.enviar(9); // Requisita variável "pc"
+                        pc = (Computer) comunicacao.receber(); // Recebe variável "pc"
 
-                        int h = server.who_is_the_winner(player.getUsed_card(), server.getPc().getUsed_card(), manilha);   
+                        System.out.println("\n\n >>> " + player.getName() + " jogou " + used_card.getSymbol() + " " + used_card.getSuit().getName());
+                        System.out.println(" >>> Computador jogou " + pc.getUsed_card().getSymbol() + " " + pc.getUsed_card().getSuit().getName());
+
+                        comunicacao.enviar(13, player.getUsed_card(), pc.getUsed_card(), manilha);
+                        int h = (int) comunicacao.receber();
                         if (h == 1){
                             player.setRound_score(player.getRound_score() + 1);
                             System.out.println("\n\n\n >>> " + player.getName() + " levou essa !" 
                                                  + "\n >>> Pontos da rodadas: " + player.getRound_score()
                                                  + "\n >>> Pontos da partida: " + player.getMatch_score() 
                                                + "\n\n >>> Computador" 
-                                                 + "\n >>> Pontos da rodadas: " + server.getPc().getRound_score()
-                                                 + "\n >>> Pontos da partida: " + server.getPc().getMatch_score() + "\n\n\n");
+                                                 + "\n >>> Pontos da rodadas: " + pc.getRound_score()
+                                                 + "\n >>> Pontos da partida: " + pc.getMatch_score() + "\n\n\n");
                         } else {
-                            server.getPc().setRound_score(server.getPc().getRound_score() + 1);
+                            pc.setRound_score(pc.getRound_score() + 1);
                             System.out.println("\n\n\n >>> O computador levou essa !" 
-                                                 + "\n >>> Pontos da rodadas: " + server.getPc().getRound_score()
-                                                 + "\n >>> Pontos da partida: " + server.getPc().getMatch_score() 
+                                                 + "\n >>> Pontos da rodadas: " + pc.getRound_score()
+                                                 + "\n >>> Pontos da partida: " + pc.getMatch_score() 
                                                + "\n\n >>> " + player.getName()
                                                  + "\n >>> Pontos da rodadas: " + player.getRound_score()
                                                  + "\n >>> Pontos da partida: " + player.getMatch_score() + "\n\n\n");
@@ -327,38 +341,38 @@ public class Client {
                     System.out.println("\n\n >>> " + player.getName() + " venceu essa rodada!"
                                        + "\n >>> Pontos da partida: " + player.getMatch_score()
                                      + "\n\n >>> Computador: "
-                                       + "\n >>> Pontos da partida:" + server.getPc().getMatch_score() + "\n");
-                } else if (server.getPc().getRound_score() == 2){
-                    server.getPc().setMatch_score(server.getPc().getMatch_score() + 1);
+                                       + "\n >>> Pontos da partida:" + pc.getMatch_score() + "\n");
+                } else if (pc.getRound_score() == 2){
+                    pc.setMatch_score(pc.getMatch_score() + 1);
 
                     System.out.println("\n\n >>> Computador venceu essa rodada!"
-                                       + "\n >>> Pontos da partida: " + server.getPc().getMatch_score()
+                                       + "\n >>> Pontos da partida: " + pc.getMatch_score()
                                      + "\n\n >>> " + player.getName() + ":"
                                        + "\n >>> Pontos da partida:" + player.getMatch_score() + "\n");
                 }
 
                 j++; 
-            } while (j < 2 || (player.getRound_score() < 2 && server.getPc().getRound_score() < 2)); 
+            } while (j < 2 || (player.getRound_score() < 2 && pc.getRound_score() < 2)); 
 
             // Limpando a mão para o próximo round --> Partida (vai até 12 pontos) --> Possui no máximo 12 round ao todo --> Dentro de cada round tem 3 outros rounds 
             player_hand.clear();
             computer_hand.clear();
             used_cards.clear();
             player.setRound_score(0);
-            server.getPc().setRound_score(0);
+            pc.setRound_score(0);
 
-        } while (player.getMatch_score() != 12 && server.getPc().getMatch_score() != 12); // jogo vai até alguem atingir de 12 pontos
+        } while (player.getMatch_score() != 12 && pc.getMatch_score() != 12); // jogo vai até alguem atingir de 12 pontos
         
-        if (player.getMatch_score() > server.getPc().getMatch_score()){
+        if (player.getMatch_score() > pc.getMatch_score()){
             System.out.println("\n\n >>> " + player.getName().toUpperCase() + "VENCEU O JOGO! VOCÊ É FODA"
                                + "\n >>> Pontos da partida: " + player.getMatch_score()
                              + "\n\n >>> Computador: "
-                               + "\n >>> Pontos da partida:" + server.getPc().getMatch_score());
-        } else if (server.getPc().getMatch_score() > player.getMatch_score()){
+                               + "\n >>> Pontos da partida:" + pc.getMatch_score());
+        } else if (pc.getMatch_score() > player.getMatch_score()){
 
             System.out.println("\n\n >>> GAME OVER PRA VOCÊ MEU PARCEIRO !!!"
                                + "\n >>> O COMPUTADOR VENCEU O JOGO! VIVA ÀS MÁQUINAS !!!"
-                               + "\n >>> Pontos da partida: " + server.getPc().getMatch_score()
+                               + "\n >>> Pontos da partida: " + pc.getMatch_score()
                              + "\n\n >>> " + player.getName() + ":"
                                + "\n >>> Pontos da partida:" + player.getMatch_score());
         }

@@ -9,11 +9,12 @@ public class Match {
     // Instantiating variables
     private int game_mode;
     private Double difficulty;
+    Player player = new Player();
     Computer pc = new Computer();
     Pack pack_instance = new Pack();
-    private ArrayList<Card> match_pack;
-    private ArrayList<Card> round_pack;
     private Random random = new Random();
+    private ArrayList<Card> match_pack = new ArrayList<>();
+    private ArrayList<Card> round_pack = new ArrayList<>();
 
     // ------------------------ Construtor ------------------------
     public Match() {}
@@ -31,6 +32,12 @@ public class Match {
     public ArrayList<Card> getRound_pack() {
         return round_pack;}
 
+    public Player getPlayer() {
+        return player;}
+
+    public Computer getPc() {
+        return pc;}
+
     // ------------------------ Setters ------------------------
     public void setDifficulty(Double difficulty) {
         this.difficulty = difficulty;}  
@@ -42,10 +49,13 @@ public class Match {
         this.round_pack = match_pack;}
 
     public void setMatch_clean_pack() {
-        pack_instance.getCLEAN_PACK();} 
+        this.match_pack = pack_instance.getCLEAN_PACK();} 
 
     public void setMatch_dirty_pack() {
-        pack_instance.getDIRTY_PACK();} 
+        this.match_pack = pack_instance.getDIRTY_PACK();} 
+    
+    public void setPlayer(Player player) {
+        this.player = player;}
 
     // ------------------------ Methods ------------------------
     public void embaralhar() {
@@ -62,6 +72,9 @@ public class Match {
                 computer_hand.add(round_pack.get(i));
             }
         }
+
+        player.setHand(player_hand);
+        pc.setHand(computer_hand);
     }
 
     public Card setting_manilha(Card mesa) {

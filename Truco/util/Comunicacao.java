@@ -1,10 +1,12 @@
 package util;
 
+// Importing libraries
+import java.net.Socket;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 
 public class Comunicacao {
+    // Instantiating variables
     private ObjectInputStream input;
     private ObjectOutputStream output;
 
@@ -16,10 +18,42 @@ public class Comunicacao {
             System.out.println(e.getMessage());
         }
     }
-
-    public void enviar(Object obj) {
+    
+    public void enviar(Object id_Requisicao) {
         try {
-            output.writeObject(obj);
+            output.writeObject(id_Requisicao);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public void enviar(Object id_Requisicao, Object valor) {
+        try {
+            output.writeObject(id_Requisicao);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void enviar(Object id_Requisicao, Object valor, Object valor2) {
+        try {
+            output.writeObject(id_Requisicao);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void enviar(Object id_Requisicao, Object valor, Object valor2, Object valor3) {
+        try {
+            output.writeObject(id_Requisicao);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public void envia_resposta(Object resposta) {
+        try {
+            output.writeObject(resposta);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -32,6 +66,5 @@ public class Comunicacao {
             System.out.println(e.getMessage());
             return null;
         }
-    }
-
+    }    
 }
