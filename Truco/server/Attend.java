@@ -47,10 +47,13 @@ public class Attend extends Thread {
                     match.setGame_mode((int) requisicao.getValor());
                     break;
                 case 2:
-                    match.setMatch_clean_pack();
-                    break;
                 case 3:
-                    match.setMatch_dirty_pack();
+                    if ((int) requisicao.getId_Requisicao() == 2){
+                        match.setMatch_clean_pack();
+    
+                    } else if ((int) requisicao.getId_Requisicao() == 3){
+                        match.setMatch_dirty_pack();
+                    }
                     break;
                 case 4:
                     match.setRound_pack();
@@ -105,14 +108,13 @@ public class Attend extends Thread {
                 default:
                     break;
             }
-    
-            input.close();
-            output.close();
-    
         } catch (Exception e) {
             System.out.println(" >>> Erro na comunicação");
             System.out.println(e.getMessage());
         }
+
+        input.close();
+        output.close();
     }
 
     // ------------------------ Getters ------------------------

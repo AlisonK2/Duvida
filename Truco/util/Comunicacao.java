@@ -29,7 +29,8 @@ public class Comunicacao {
     
     public void enviar(Object id_Requisicao, Object valor) {
         try {
-            output.writeObject(id_Requisicao);
+            output.writeObject(id_Requisicao); 
+            output.writeObject(valor);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -38,6 +39,8 @@ public class Comunicacao {
     public void enviar(Object id_Requisicao, Object valor, Object valor2) {
         try {
             output.writeObject(id_Requisicao);
+            output.writeObject(valor);
+            output.writeObject(valor2);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -46,6 +49,9 @@ public class Comunicacao {
     public void enviar(Object id_Requisicao, Object valor, Object valor2, Object valor3) {
         try {
             output.writeObject(id_Requisicao);
+            output.writeObject(valor);
+            output.writeObject(valor2);
+            output.writeObject(valor3);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

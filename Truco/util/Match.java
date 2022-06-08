@@ -60,7 +60,7 @@ public class Match {
     // ------------------------ Methods ------------------------
     public void embaralhar() {
         for (int i = 0; i < (random.nextInt(10) + 1); i++){
-            Collections.shuffle(round_pack);
+            Collections.shuffle(this.round_pack);
         }
     }
 

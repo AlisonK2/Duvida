@@ -6,6 +6,7 @@ import java.util.Scanner;
 public class Listen extends Thread {
     // ------------------------ Attributes ------------------------
     private Scanner input = null;
+    private boolean running;
 
    // ------------------------ Construtor ------------------------
     public Listen(Scanner input) {
@@ -16,7 +17,11 @@ public class Listen extends Thread {
     public void run() {
         do {
             String resposta = input.nextLine();
-            System.out.println(resposta);
-        } while (true);
+            System.out.println("Recebido: " + resposta);
+        } while (running);
+    }
+
+    public void parar(){
+        running = false;
     }
 }

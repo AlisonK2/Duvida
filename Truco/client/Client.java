@@ -29,11 +29,12 @@ public class Client {
         final int PORT = 1234;
         PrintStream output = null;
         final String IP = "127.0.0.1";
-        Comunicacao comunicacao = new Comunicacao(socket);
-
+        Comunicacao comunicacao;
+        
         // Solicitar conexão
         try {
             socket = new Socket(IP, PORT);
+            comunicacao = new Comunicacao(socket);
         } catch (Exception e) {
             System.out.println("\n >>> Não foi possível conectar ao servidor.\n\n");
             System.out.println(e.getMessage());
@@ -75,12 +76,12 @@ public class Client {
         player.setName(msg_setting_match);
         comunicacao.enviar(14, player); // Envia a variável "player" para ser armazenada no Match
 
-        try {
-            clear_console();
-        } catch (InterruptedException | IOException e) {
-            System.out.println("\n\n >>> Erro inesperado");
-            System.out.println(e.getMessage());
-        }
+        // try {
+        //     clear_console();
+        // } catch (InterruptedException | IOException e) {
+        //     System.out.println("\n\n >>> Erro inesperado");
+        //     System.out.println(e.getMessage());
+        // }
 
         do {
             System.out.println("\n Bem-vindo/a, " + player.getName() + ", ao jogo de TRUCO\n" 
@@ -110,7 +111,7 @@ public class Client {
 
                 case "3":
                     System.out.println("\n\n >>> Volte sempre!"
-                                       + "\n >>> Desconectado");
+                                       + "\n >>> Desconectado\n\n\n");
                     break;
     
                 default:
