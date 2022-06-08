@@ -2,28 +2,17 @@
 
 Oie professor,
 
-Seguindo suas orientações, conseguimos:
-- Resolver aquele erro que estava dando quanto à um array não inicializado;
-- Tirei as chamadas de métodos do Server que estavam sendo feitas pelo Client;
-- Foi retirados as chamadas de métodos da classe Match que estavam sendo feitas pelo Server;
-- Na thread Attend foi instanciado um objeto Match, o qual é chamado para executar as requisições do Client feitas através de uma comunicação via Socket, estando estas chamadas dentro do método Run();
-- Foi enviado do Client para a thread Attend o objeto Player e suas escolhas, como dificuldade do bot e modo de jogo;
+Seguimos as suas orientações e aparentemente não consigo identificar mais nenhuma falha na comunicação sentre o Client e o Server, porém, ao tentar rodar o programa funciona até um certo ponto e as mensagens de erro apresentadas são as seguintes:
 
+- class java.lang.Integer cannot be cast to class util.Requisicao (java.lang.Integer is in module java.base of loader 'bootstrap'; util.Requisicao is in unnamed module of loader 'app')
+- Exception in thread "Thread-0" java.util.NoSuchElementException: No line found
+        at java.base/java.util.Scanner.nextLine(Scanner.java:1651)
+        at client.Listen.run(Listen.java:18)
+- Uma conexão estabelecida foi anulada pelo software no computador host
+- Cannot invoke "util.Card.getSymbol()" because "mesa" is null
 
-
-Busquei aplicar tudo o que foi passado, porém acredito que durante a implementação da comunicação entre o Client e a thread Attend eu devo ter feito algo errado, o qual não fui capaz de identificar hoje até agora, tentei bastante porém não obtive êxito em resolver as seguintes mensagens de erro:
-
-* Erros apresentados para o cliente:
-Cannot invoke "util.Card.getSymbol()" because "mesa" is null
-Cannot invoke "java.net.Socket.getOutputStream()" because "socket" is null
-Cannot invoke "java.io.ObjectInputStream.readObject()" because "this.input" is null
-Cannot invoke "java.io.ObjectOutputStream.writeObject(Object)" because "this.output" is null
-
-* Erros apresentados para o server:
-Cannot invoke "util.Requisicao.getId_Requisicao()" because "requisicao" is null
-
-O programa para de funcionar antes do jogo em si começar, tentei ao máximo solucionar esses problemar sem ter que pedir ajuda pra você de novo com outra coisa professor, mas não consegui
-
+Saberia nos direcionar quanto a estes erros professor?
+Pois eu realmente não sei como solucionarmos todos esses problemas e imagino que não conseguiremos entregar o trabalho completo
 
 Atenciosamente, 
 Alison de Almeida Sales, Giovanna Paola Lunetta Crepaldi Matias e etc.
