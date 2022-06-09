@@ -19,58 +19,20 @@ public class Comunicacao {
         }
     }
     
-    public void enviar(Object id_Requisicao) {
+    public void enviar(Requisicao requisicao) {
         try {
-            output.writeObject(id_Requisicao);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-    
-    public void enviar(Object id_Requisicao, Object valor) {
-        try {
-            output.writeObject(id_Requisicao); 
-            output.writeObject(valor);
+            output.writeObject(requisicao);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public void enviar(Object id_Requisicao, Object valor, Object valor2) {
+    public Requisicao receber() {
         try {
-            output.writeObject(id_Requisicao);
-            output.writeObject(valor);
-            output.writeObject(valor2);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void enviar(Object id_Requisicao, Object valor, Object valor2, Object valor3) {
-        try {
-            output.writeObject(id_Requisicao);
-            output.writeObject(valor);
-            output.writeObject(valor2);
-            output.writeObject(valor3);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-    
-    public void envia_resposta(Object resposta) {
-        try {
-            output.writeObject(resposta);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public Object receber() {
-        try {
-            return input.readObject();
+            return (Requisicao) input.readObject();
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
         }
-    }    
+    }  
 }
