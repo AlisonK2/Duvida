@@ -10,7 +10,7 @@ public class Computer {
     private Card used_card;
     private int match_score;
     private int round_score;
-    Random random = new Random();
+    private Random random = new Random();
     private ArrayList<Card> hand = new ArrayList<>();
 
     // ------------------------ Construtor ------------------------

@@ -7,12 +7,14 @@ import java.util.Collections;
 
 public class Match {
     // Instantiating variables
+    private Card mesa;
+    private Card manilha;
     private int game_mode;
     private Double difficulty;
-    Player player = new Player();
-    Computer pc = new Computer();
-    Pack pack_instance = new Pack();
+    private Player player = new Player();
+    private Computer pc = new Computer();
     private Random random = new Random();
+    private Pack pack_instance = new Pack();
     private ArrayList<Card> match_pack = new ArrayList<>();
     private ArrayList<Card> round_pack = new ArrayList<>();
 
@@ -38,6 +40,10 @@ public class Match {
     public Computer getPc() {
         return pc;}
 
+    public Card getManilha() {
+        return manilha;
+    }
+
     // ------------------------ Setters ------------------------
     public void setDifficulty(Double difficulty) {
         this.difficulty = difficulty;}  
@@ -48,16 +54,27 @@ public class Match {
     public void setRound_pack() {
         this.round_pack = match_pack;}
 
-    public void setMatch_clean_pack() {
-        this.match_pack = pack_instance.getCLEAN_PACK();} 
-
-    public void setMatch_dirty_pack() {
-        this.match_pack = pack_instance.getDIRTY_PACK();} 
+    public void setMatch_pack(int pack_type) {
+        if (pack_type == 1) {
+            this.match_pack = pack_instance.getCLEAN_PACK();
+            setRound_pack();
+        } else {
+            this.match_pack = pack_instance.getDIRTY_PACK();
+            setRound_pack();
+        }
+    } 
     
     public void setPlayer(Player player) {
         this.player = player;}
 
     // ------------------------ Methods ------------------------
+    public Hand start_match() {
+        embaralhar();
+        dar_cartas(player.getHand(), pc.getHand());
+        
+        return new Hand(mesa, manilha, player.getHand());
+    }
+
     public void embaralhar() {
         for (int i = 0; i < (random.nextInt(10) + 1); i++){
             Collections.shuffle(this.round_pack);
@@ -72,6 +89,8 @@ public class Match {
                 computer_hand.add(round_pack.get(i));
             }
         }
+        mesa = round_pack.get(6);
+        setting_manilha(mesa);
 
         player.setHand(player_hand);
         pc.setHand(computer_hand);
@@ -97,21 +116,27 @@ public class Match {
     public int who_is_the_winner (Card usedCard1, Card usedCard2, Card manilha){
         if (usedCard1.getSymbol() == manilha.getSymbol() && usedCard2.getSymbol() == manilha.getSymbol()){
             if ((usedCard1.getPower() + usedCard1.getSuit().getPower()) > (usedCard2.getPower() + usedCard2.getSuit().getPower())){
-                return 1;
+                player.setRound_score(player.getRound_score() + 1);
+                return 0;
             } else {
-                return 2;
+                pc.setRound_score(player.getRound_score() + 1);
+                return 1;
             }
         } else if (usedCard1.getSymbol() == manilha.getSymbol() || usedCard2.getSymbol() == manilha.getSymbol()) {
             if (usedCard1.getSymbol() == manilha.getSymbol()){
-                return 1;
+                player.setRound_score(player.getRound_score() + 1);
+                return 0;
             } else {
-                return 2;
+                pc.setRound_score(player.getRound_score() + 1);
+                return 1;
             }
         } else {
             if ((usedCard1.getPower() + usedCard1.getSuit().getPower()) > (usedCard2.getPower() + usedCard2.getSuit().getPower())){
-                return 1;
+                player.setRound_score(player.getRound_score() + 1);
+                return 0;
             } else {
-                return 2;
+                pc.setRound_score(player.getRound_score() + 1);
+                return 1;
             }
         }
     }

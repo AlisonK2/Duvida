@@ -19,7 +19,7 @@ public class Comunicacao {
         }
     }
     
-    public void enviar(Requisicao requisicao) {
+    public void enviar(Object requisicao) {
         try {
             output.writeObject(requisicao);
         } catch (Exception e) {
@@ -27,9 +27,9 @@ public class Comunicacao {
         }
     }
 
-    public Requisicao receber() {
+    public Object receber() {
         try {
-            return (Requisicao) input.readObject();
+            return input.readObject();
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
