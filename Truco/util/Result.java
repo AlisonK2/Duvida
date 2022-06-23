@@ -5,14 +5,14 @@ import java.io.Serializable;
 public class Result implements Serializable {
     private int winner;
     private Player player;
-    private Computer computer;
+    private Player player2_or_computer;
 
     // ------------------------ Construtores ------------------------
     public Result() {}
 
-    public Result(Player player, Computer computer, int winner) {
+    public Result(Player player, Player player2_or_computer, int winner) {
         this.player = player;
-        this.computer = computer;
+        this.player2_or_computer = player2_or_computer;
         this.winner = winner;
     }
 
@@ -25,8 +25,8 @@ public class Result implements Serializable {
         return player;
     }
 
-    public Computer getComputer() {
-        return computer;
+    public Player getPlayer2_or_computer() {
+        return player2_or_computer;
     }
 
     // ------------------------ Setters ------------------------
@@ -38,7 +38,7 @@ public class Result implements Serializable {
         this.player = player;
     }
 
-    public void setComputer(Computer computer) {
-        this.computer = computer;
+    public void setplayer2_or_computer(Player player2_or_computer) {
+        this.player2_or_computer = player2_or_computer;
     }
 }

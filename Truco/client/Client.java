@@ -5,8 +5,6 @@ import util.Card;
 import util.Hand;
 import util.Player;
 import util.Result;
-import util.Threads;
-import util.Computer;
 import java.net.Socket;
 import util.Comunicacao;
 import util.InitialData;
@@ -23,7 +21,7 @@ public class Client {
     static Comunicacao comunicacao;
     static Random random = new Random();
     static Player player = new Player();
-    static Computer computer = new Computer();
+    static Player computer = new Player();
     static Scanner sc = new Scanner(System.in);
 
     // ------------------------ Main ------------------------
@@ -49,26 +47,43 @@ public class Client {
             input = new Scanner(socket.getInputStream());
             Listen listen = new Listen(input);
             listen.start();
+            int replay = 1;
 
             setting_name();
 
-            // Se o tamanho da Thread for 1, ou seja, outro jogardor ainda não configurou 
-            // o jogo, então o primeiro jogador a se conectar configurarar o jogo
-            comunicacao.enviar(new Threads()); 
-            ArrayList<Card> threads = (ArrayList<Card>) comunicacao.receber();
-            if (threads.size() == 1){ 
+            do {
+                // Implementar caso for segundo jogador para não configurar a partida, pois o jogador um já configurou
                 setting_match();
                 setting_pack();
 
                 if (game_mode == 1) {
                     setting_difficulty();
-                }
+                }    
+
+                comunicacao.enviar(game_mode);
+
+
+                // mensagem do próprio cliente opcional: (single: ok, dupla: aguarde o próximo jogador)
                 
                 comunicacao.enviar(new InitialData(player.getName(), game_mode, pack_type, bot_difficulty));
-            }
-            
-            start_match();
-            
+                
+                start_match();
+
+                do {
+                    if (replay != 1 && replay != 2) {
+                        System.out.println("\n >>> Por favor, digite uma opção válida. \n\n");
+                    }
+
+                    System.out.println("\n >>> Deseja jogar novamente:"
+                                      + "\n 1 - Sim"
+                                      + "\n 2 - Não \n");
+                    System.out.print(" --> ");
+                    replay = sc.nextInt();
+
+                } while (replay != 1 && replay != 2);
+
+            } while (replay == 1);
+
         } catch (Exception e) {
             System.out.println(" >>> Erro na comunicação");
             System.out.println(e.getMessage());
@@ -199,11 +214,12 @@ public class Client {
     }
 
     private static void start_match() {
-        Computer pc = new Computer();
+        Player pc = new Player();
 
         do { // Partida até 12
             int mao = 0;
             int msg = 1;
+            String player2name;
             Card mesa = new Card();
             Card manilha = new Card();
             Card used_card = new Card();
@@ -212,21 +228,23 @@ public class Client {
             do {  // Rodada, possui 3 mãos ou até alguém completar 2 pontos
                  // Envia requisição para: Emabaralhar, dar as cartas, dizer a carta 
                 // que vira na mesa e consequentemente definir a manilha
-                comunicacao.enviar(new Hand());
                 Hand hand = (Hand) comunicacao.receber();
 
                 // Váriaveis recebidas do servidor sendo configuradas do lado do Client 
                 mesa = hand.getMesa();
                 manilha = hand.getManilha();
                 player.setHand(hand.getHand()); 
+                player2name = hand.getPlayer2name();
 
-                System.out.println("\n >>> " + player.getName() + " vs Computador"
-                                 + "\n >>> Virou um " + mesa.getSymbol() + " na mesa.");
+                if (game_mode == 1){
+                    System.out.println("\n >>> " + player.getName() + " vs Computador"
+                                     + "\n >>> Virou um " + mesa.getSymbol() + " na mesa.");
+                } else {
+                    System.out.println("\n >>> " + player.getName() + " " + player2name
+                                     + "\n >>> Virou um " + mesa.getSymbol() + " na mesa.");
+                }
 
                 do { // Loop para garantir que o jogador não jogará uma carta que já usou ou uma opção inválida
-                    if (msg > 4 || msg == 0) { 
-                        System.out.println("\nPor favor, digite uma opção válida.\n");
-                    }
                     
                     System.out.println("\n >>> A manilha é " + manilha.getSymbol()
                                      + "\n >>> Sua mão:"
@@ -250,7 +268,7 @@ public class Client {
                         System.out.println("\n >>> Você já usou esta carta, jogue outra, por favor. \n");
                     }
 
-                } while (used_cards.contains(used_card) || msg > 4); // Enquanto ele tentar jogar uma carda que ja jogou
+                } while (used_cards.contains(used_card)); // Enquanto ele tentar jogar uma carda que ja jogou
 
                 switch (msg) {
                     case 1:
@@ -259,10 +277,9 @@ public class Client {
                         used_cards.add(used_card);
                         player.setUsed_card(used_card);
 
-                        // -----------------------------------------------------------
                         comunicacao.enviar(new Result(player, computer, 0));
                         Result result = (Result) comunicacao.receber();
-                        pc = result.getComputer();
+                        pc = result.getPlayer2_or_computer();
 
                         try {
                             clear_console();
@@ -273,8 +290,12 @@ public class Client {
 
                         System.out.println("\n\n >>> " + player.getName() + " jogou " + used_card.getSymbol() + " "
                                 + used_card.getSuit().getName());
-                        System.out.println(" >>> Computador jogou " + pc.getUsed_card().getSymbol() + " "
-                                + pc.getUsed_card().getSuit().getName());
+
+                        if (game_mode == 1) {
+                            System.out.println(" >>> Computador jogou " + pc.getUsed_card().getSymbol() + " " + pc.getUsed_card().getSuit().getName());
+                        } else {
+                            System.out.println(" >>> " + player2name + " " + pc.getUsed_card().getSymbol() + " " + pc.getUsed_card().getSuit().getName());
+                        }
 
                         if (result.getWinner() == 0) {
                             player.setRound_score(player.getRound_score() + 1);
@@ -294,7 +315,7 @@ public class Client {
                                     + "\n >>> Pontos da partida: " + player.getMatch_score() + "\n\n\n");
                         }
                         break;
-
+                    case 0:
                     case 4:
                         break;
                     default:

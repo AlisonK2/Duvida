@@ -9,10 +9,11 @@ public class Match {
     // Instantiating variables
     private Card mesa;
     private Card manilha;
-    private int game_mode;
+    private int game_mode = 9;
     private Double difficulty;
-    private Player player = new Player();
-    private Computer pc = new Computer();
+    private Player player1 = new Player();
+    private Player player2 = new Player();
+    private static Player computer = new Player();
     private Random random = new Random();
     private Pack pack_instance = new Pack();
     private ArrayList<Card> match_pack = new ArrayList<>();
@@ -34,11 +35,15 @@ public class Match {
     public ArrayList<Card> getRound_pack() {
         return round_pack;}
 
-    public Player getPlayer() {
-        return player;}
+    public Player getPlayer1() {
+        return player1;}
+        
+    public Player getPlayer2() {
+        return player2;
+    }
 
-    public Computer getPc() {
-        return pc;}
+    public Player getComputer() {
+        return computer;}
 
     public Card getManilha() {
         return manilha;
@@ -64,15 +69,19 @@ public class Match {
         }
     } 
     
-    public void setPlayer(Player player) {
-        this.player = player;}
+    public void setPlayer1(Player player1) {
+        this.player1 = player1;}
+
+    public void setPlayer2(Player player2) {
+        this.player2 = player2;}
+    
 
     // ------------------------ Methods ------------------------
     public Hand start_match() {
         embaralhar();
-        dar_cartas(player.getHand(), pc.getHand());
+        dar_cartas(player1.getHand(), computer.getHand());
         
-        return new Hand(mesa, manilha, player.getHand());
+        return new Hand(mesa, manilha, player1.getHand(), player2.getName());
     }
 
     public void embaralhar() {
@@ -92,8 +101,8 @@ public class Match {
         mesa = round_pack.get(6);
         setting_manilha(mesa);
 
-        player.setHand(player_hand);
-        pc.setHand(computer_hand);
+        player1.setHand(player_hand);
+        computer.setHand(computer_hand);
     }
 
     public Card setting_manilha(Card mesa) {
@@ -116,28 +125,61 @@ public class Match {
     public int who_is_the_winner (Card usedCard1, Card usedCard2, Card manilha){
         if (usedCard1.getSymbol() == manilha.getSymbol() && usedCard2.getSymbol() == manilha.getSymbol()){
             if ((usedCard1.getPower() + usedCard1.getSuit().getPower()) > (usedCard2.getPower() + usedCard2.getSuit().getPower())){
-                player.setRound_score(player.getRound_score() + 1);
+                player1.setRound_score(player1.getRound_score() + 1);
                 return 0;
             } else {
-                pc.setRound_score(player.getRound_score() + 1);
+                computer.setRound_score(player1.getRound_score() + 1);
                 return 1;
             }
         } else if (usedCard1.getSymbol() == manilha.getSymbol() || usedCard2.getSymbol() == manilha.getSymbol()) {
             if (usedCard1.getSymbol() == manilha.getSymbol()){
-                player.setRound_score(player.getRound_score() + 1);
+                player1.setRound_score(player1.getRound_score() + 1);
                 return 0;
             } else {
-                pc.setRound_score(player.getRound_score() + 1);
+                computer.setRound_score(player1.getRound_score() + 1);
                 return 1;
             }
         } else {
             if ((usedCard1.getPower() + usedCard1.getSuit().getPower()) > (usedCard2.getPower() + usedCard2.getSuit().getPower())){
-                player.setRound_score(player.getRound_score() + 1);
+                player1.setRound_score(player1.getRound_score() + 1);
                 return 0;
             } else {
-                pc.setRound_score(player.getRound_score() + 1);
+                computer.setRound_score(player1.getRound_score() + 1);
                 return 1;
             }
+        }
+    }
+
+    public void Computer_play(Card player_card, Double difficulty) {
+        // Instantiating variables
+        int n;
+        int i;
+        ArrayList<Card> computer_cards = computer.getHand();
+
+        Collections.sort(computer_cards);  
+        n = Math.random() < difficulty ? 0 : 1;
+
+        if (computer_cards.size() > 2){
+            if (n == 0){
+                computer.setUsed_card(computer_cards.get(n));
+                computer_cards.remove(n);
+                computer.setHand(computer_cards);
+            } else {
+                if (computer_cards.get(2) != null){
+                    i = random.nextInt(2) + 1;
+                    computer.setUsed_card(computer_cards.get(i));
+                    computer_cards.remove(i);
+                    computer.setHand(computer_cards);
+                } else {
+                    computer.setUsed_card(computer_cards.get(n));
+                    computer_cards.remove(n);
+                    computer.setHand(computer_cards);
+                }
+            }
+        } else {
+            computer.setUsed_card(computer_cards.get(0));
+            computer_cards.remove(0);
+            computer.setHand(computer_cards);
         }
     }
 }

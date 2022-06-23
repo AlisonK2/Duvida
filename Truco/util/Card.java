@@ -1,6 +1,8 @@
 package util;
 
-public class Card implements Comparable <Card>{
+import java.io.Serializable;
+
+public class Card implements Serializable, Comparable <Card>{
     // ------------------------ Attributes ------------------------
     private Suit suit;
     private String symbol;
